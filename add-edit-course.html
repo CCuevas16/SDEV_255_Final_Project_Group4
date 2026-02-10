@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Details</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="courses.html">Courses</a>
+  </nav>
+
+  <h1>Course Details</h1>
+  <p>Please complete all required fields before saving the course.</p>
+
+  <form class="form">
+    <label>
+      Course Name
+      <input type="text" placeholder="Enter course name">
+    </label>
+
+    <label>
+      Description
+      <textarea placeholder="Enter course description"></textarea>
+    </label>
+
+    <label>
+      Subject Area
+      <input type="text" placeholder="e.g. Computer Science">
+    </label>
+
+    <label>
+      Credits
+      <input type="number" min="1" max="6">
+    </label>
+
+    <a class="btn primary" href="courses.html">Save Course</a>
+    <a class="btn" href="courses.html">Cancel</a>
+  </form>
+
+</body>
+</html>
