@@ -108,7 +108,8 @@ p {
 }
 
 .form input,
-.form textarea {
+.form textarea,
+.form select {
   width: 100%;
   margin-top: 6px;
   padding: 10px;
@@ -124,4 +125,80 @@ p {
   border-radius: 6px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+  min-height: 80vh;
+}
+
+.side-column {
+  background-color: #1e3a8a; 
+  border-radius: 6px;
+}
+
+.main-content {
+  max-width: none;
+  margin: 0;
+}
+
+.course-card { position: relative; }
+
+.enroll-toggle {
+  position: absolute;
+  top: 16px;
+  right: 8px; 
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.course-select {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.enroll-toggle input {
+  cursor: pointer;
+}
+
+.home-image {
+  display: block;
+  margin: 8px auto 6px;       
+  width: 420px;               
+  height: auto;
+}
+
+textarea {
+  resize: none;
+}
+
+.brand-top {
+  font-size: 3.2rem;          
+  font-weight: 700;
+  letter-spacing: 1px;        
+  color: #1e3a8a;
+  margin: 0;                  
+}
+
+.brand-bottom {
+  font-size: 1.9rem;          
+  font-weight: 600;
+  letter-spacing: 2px;        
+  color: #1e3a8a;
+  margin: 6px 0 18px;         
+}
+
+
+.system-title {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #4b5563;
 }

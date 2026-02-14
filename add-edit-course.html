@@ -11,33 +11,43 @@
     <a href="courses.html">Courses</a>
   </nav>
 
+  <main class="box">
   <h1>Course Details</h1>
   <p>Please complete all required fields before saving the course.</p>
 
-  <form class="form">
+  <form class="form" id="courseForm">
+
     <label>
-      Course Name
-      <input type="text" placeholder="Enter course name">
+    Course Name
+    <select id="courseName">
+      <option value="" selected disabled>Select a course...</option>
+      <option value="Web Development I">Web Development I</option>
+      <option value="Database Fundamentals">Database Fundamentals</option>
+      <option value="Software Development Concepts">Software Development Concepts</option>
+      <option value="Cybersecurity Basics">Cybersecurity Basics</option>
+    </select>
     </label>
 
     <label>
       Description
-      <textarea placeholder="Enter course description"></textarea>
+      <textarea id="description" placeholder="Enter course description"></textarea>
     </label>
 
     <label>
       Subject Area
-      <input type="text" placeholder="e.g. Computer Science">
+      <input id="subjectArea" type="text" placeholder="e.g. Computer Science">
     </label>
 
     <label>
       Credits
-      <input type="number" min="1" max="6">
+      <input id="credits" type="number" min="1" max="6">
     </label>
 
-    <a class="btn primary" href="courses.html">Save Course</a>
+    <button type="submit" class="btn primary">Save Course</button>
     <a class="btn" href="courses.html">Cancel</a>
   </form>
+  </main>
 
+  <script src="script.js"></script>
 </body>
 </html>
