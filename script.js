@@ -5,17 +5,18 @@ if (courseSelect) {
   const descriptionEl = document.querySelector("#description");
   const subjectAreaEl = document.querySelector("#subjectArea");
   const creditsEl = document.querySelector("#credits");
+  const courseForm = document.querySelector("#courseForm");
 
   const courseData = {
     "Web Development I": {
       description:
-        "Introduction to HTML, CSS, and foundational web development tool and methods.",
+        "Introduction to HTML, CSS, and foundational web development concepts used in modern applications.",
       subjectArea: "Computer Science",
       credits: 3,
     },
     "Database Fundamentals": {
       description:
-        "Overview on stucturing, collecting, and managing a collection of data.",
+        "Covers relational database concepts, SQL queries, normalization, and data modeling techniques.",
       subjectArea: "Information Systems",
       credits: 4,
     },
@@ -33,29 +34,35 @@ if (courseSelect) {
     },
   };
 
-  courseSelect.addEventListener("change", function() {
-    const selectedName = courseSelect.value; 
-    const info = courseData[selectedName];
+  function fillCourseFields() {
+    const info = courseData[courseSelect.value];
     if (!info) return;
 
     descriptionEl.value = info.description;
     subjectAreaEl.value = info.subjectArea;
     creditsEl.value = info.credits;
-  });
-//---------------------------------------------------------------------------------------------------------------------------------------
-  const courseForm = document.querySelector("#courseForm");
+  }
+
+  courseSelect.addEventListener("change", fillCourseFields);
+  fillCourseFields(); 
+
   if (courseForm) {
-    courseForm.addEventListener("submit", function(event) {
-      event.preventDefault();
+    courseForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = courseSelect.value;
+      if (!name) return;
 
-      const selectedName = courseSelect.value;
-      if (!selectedName) return;
+      const res = await fetch("/api/enrollments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
 
-      
-      localStorage.setItem("enrolledCourseName", selectedName);
-
-      
-      window.location.href = "courses.html";
+      if (res.ok) {
+        window.location.href = "courses.html";
+      } else {
+        alert("Could not enroll.");
+      }
     });
   }
 }
@@ -64,49 +71,52 @@ if (courseSelect) {
 const courseCards = document.querySelectorAll(".course-card");
 
 if (courseCards.length) {
-  
-  document.querySelectorAll(".course-select").forEach(function(cb) {
-    cb.disabled = true;
-  });
+  document.querySelectorAll(".course-select").forEach(cb => cb.disabled = true);
 
-  
-  const enrolledName = localStorage.getItem("enrolledCourseName");
-  if (enrolledName) {
-    courseCards.forEach(function(card) {
+  (async () => {
+    const res = await fetch("/api/enrollments");
+    if (!res.ok) return;
+
+    const enrolled = await res.json();
+
+    courseCards.forEach(card => {
       const title = card.querySelector("h2")?.textContent.trim();
       const checkbox = card.querySelector(".course-select");
+      if (!title || !checkbox) return;
 
-      if (title === enrolledName && checkbox) {
-        checkbox.checked = true;
-      }
+      checkbox.checked = enrolled.includes(title);
     });
-  }
+  })();
 
-
-  document.querySelectorAll(".course-card .btn.danger").forEach(function(btn) {
-    btn.addEventListener("click", function() {
+  document.querySelectorAll(".course-card .btn.danger").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
       const card = btn.closest(".course-card");
       const title = card?.querySelector("h2")?.textContent.trim();
-      if (title) localStorage.setItem("pendingDeleteCourseName", title);
+      if (!title) return;
+
+      window.location.href = `delete-confirm.html?name=${encodeURIComponent(title)}`;
     });
   });
 }
 
-
-const confirmRemoveBtn = document.querySelector("main.box .btn.danger");
+const confirmRemoveBtn = document.querySelector("#confirmRemoveBtn");
 
 if (confirmRemoveBtn) {
-  confirmRemoveBtn.addEventListener("click", function(e){
+  confirmRemoveBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const pending = localStorage.getItem("pendingDeleteCourseName");
-    const enrolled = localStorage.getItem("enrolledCourseName");
+    const courseName = new URLSearchParams(window.location.search).get("name");
+    if (!courseName) return alert("No course selected.");
 
-    if (pending && enrolled && pending === enrolled) {
-      localStorage.removeItem("enrolledCourseName");
+    const res = await fetch(`/api/enrollments/${encodeURIComponent(courseName)}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      window.location.href = "courses.html";
+    } else {
+      alert("Could not remove course.");
     }
-
-    localStorage.removeItem("pendingDeleteCourseName");
-    window.location.href = "courses.html";
   });
 }
