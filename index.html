@@ -34,6 +34,25 @@
     <div class="side-column"></div>
 
   </main>
-
+<script src="login.js"></script>
 </body>
+<div id="loginModal">
+  <div class="login-box">
+    <h2>Login</h2>
+
+    <label>Role:</label>
+    <select id="role">
+      <option value="student">Student</option>
+      <option value="admin">Administrator</option>
+    </select>
+
+    <label>Username:</label>
+    <input type="text" id="username">
+
+    <label>Password:</label>
+    <input type="password" id="password">
+
+    <button onclick="loginUser()">Login</button>
+  </div>
+</div>
 </html>
