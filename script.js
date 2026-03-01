@@ -1,3 +1,18 @@
+const logoutLink = document.querySelector("#logoutLink");
+if (logoutLink) {
+  logoutLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.removeItem("role");
+    window.location.href = "index.html";
+  });
+}
+
+const role = localStorage.getItem("role"); 
+const isAdmin = role === "administrator";
+
+if (!role && !window.location.pathname.endsWith("index.html")) {
+  window.location.href = "index.html";
+}
 
 const courseSelect = document.querySelector("#courseName");
 
@@ -44,34 +59,50 @@ if (courseSelect) {
   }
 
   courseSelect.addEventListener("change", fillCourseFields);
-  fillCourseFields(); 
+  fillCourseFields();
 
   if (courseForm) {
-    courseForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = courseSelect.value;
-      if (!name) return;
-
-      const res = await fetch("/api/enrollments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+    if (!isAdmin) {
+      courseForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Only administrators can enroll students.");
       });
+    } else {
+      courseForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-      if (res.ok) {
-        window.location.href = "courses.html";
-      } else {
-        alert("Could not enroll.");
-      }
-    });
+        const name = courseSelect.value;
+        if (!name) return;
+
+        const res = await fetch("/api/enrollments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-role": role, 
+          },
+          body: JSON.stringify({ name }),
+        });
+
+        if (res.ok) {
+          window.location.href = "courses.html";
+        } else {
+          alert("Could not enroll.");
+        }
+      });
+    }
   }
 }
-
 
 const courseCards = document.querySelectorAll(".course-card");
 
 if (courseCards.length) {
-  document.querySelectorAll(".course-select").forEach(cb => cb.disabled = true);
+  if (!isAdmin) {
+    document.querySelectorAll(".course-card .actions").forEach((actions) => {
+      actions.style.display = "none";
+    });
+  }
+
+  document.querySelectorAll(".course-select").forEach((cb) => (cb.disabled = true));
 
   (async () => {
     const res = await fetch("/api/enrollments");
@@ -79,7 +110,7 @@ if (courseCards.length) {
 
     const enrolled = await res.json();
 
-    courseCards.forEach(card => {
+    courseCards.forEach((card) => {
       const title = card.querySelector("h2")?.textContent.trim();
       const checkbox = card.querySelector(".course-select");
       if (!title || !checkbox) return;
@@ -88,35 +119,48 @@ if (courseCards.length) {
     });
   })();
 
-  document.querySelectorAll(".course-card .btn.danger").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      const card = btn.closest(".course-card");
-      const title = card?.querySelector("h2")?.textContent.trim();
-      if (!title) return;
+  if (isAdmin) {
+    document.querySelectorAll(".course-card .btn.danger").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const card = btn.closest(".course-card");
+        const title = card?.querySelector("h2")?.textContent.trim();
+        if (!title) return;
 
-      window.location.href = `delete-confirm.html?name=${encodeURIComponent(title)}`;
+        window.location.href = `delete-confirm.html?name=${encodeURIComponent(title)}`;
+      });
     });
-  });
+  }
 }
 
 const confirmRemoveBtn = document.querySelector("#confirmRemoveBtn");
 
 if (confirmRemoveBtn) {
-  confirmRemoveBtn.addEventListener("click", async (e) => {
-    e.preventDefault();
-
-    const courseName = new URLSearchParams(window.location.search).get("name");
-    if (!courseName) return alert("No course selected.");
-
-    const res = await fetch(`/api/enrollments/${encodeURIComponent(courseName)}`, {
-      method: "DELETE",
+  if (!isAdmin) {
+    confirmRemoveBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Only administrators can remove enrollments.");
     });
+  } else {
+    confirmRemoveBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
 
-    if (res.ok) {
-      window.location.href = "courses.html";
-    } else {
-      alert("Could not remove course.");
-    }
-  });
+      const courseName = new URLSearchParams(window.location.search).get("name");
+      if (!courseName) return alert("No course selected.");
+
+      const res = await fetch(
+        `/api/enrollments/${encodeURIComponent(courseName)}`,
+        {
+          method: "DELETE",
+          headers: { "x-role": role }, 
+        }
+      );
+
+      if (res.ok) {
+        window.location.href = "courses.html";
+      } else {
+        alert("Could not remove course.");
+      }
+    });
+  }
 }
