@@ -7,21 +7,57 @@ if (logoutLink) {
   });
 }
 
-function loginUser() {
+async function loginUser() {
   const role = document.getElementById("role").value;
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
 
-  const ok =
-    (role === "administrator" && username === "admin" && password === "123") ||
-    (role === "student" && username === "student" && password === "123");
-
-  if (!ok) {
-    alert("Invalid credentials.");
+  if (!username || !password) {
+    alert("Enter a username and password.");
     return;
   }
 
-  localStorage.setItem("role", role);
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, username, password }),
+  });
+
+  if (!res.ok) {
+    const msg = await res.json().catch(() => ({}));
+    alert(msg.error || "Invalid credentials.");
+    return;
+  }
+
+  const data = await res.json();
+  localStorage.setItem("role", data.role);
+  document.getElementById("loginModal").style.display = "none";
+}
+
+async function createAccount() {
+  const role = document.getElementById("role").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!username || !password) {
+    alert("Enter a username and password to create an account.");
+    return;
+  }
+
+  const res = await fetch("/api/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, username, password }),
+  });
+
+  if (!res.ok) {
+    const msg = await res.json().catch(() => ({}));
+    alert(msg.error || "Could not create account.");
+    return;
+  }
+
+  const data = await res.json();
+  localStorage.setItem("role", data.role);
   document.getElementById("loginModal").style.display = "none";
 }
 
